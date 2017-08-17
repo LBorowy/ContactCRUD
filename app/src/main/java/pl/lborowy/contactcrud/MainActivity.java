@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,12 +25,13 @@ public class MainActivity extends AppCompatActivity {
         // sprawdzanie pozwoleń
         // permission granted - uznane pozwolenie
         // jeśli ma pozwolenie, to ok
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             inflateLayout();
         }
         // jak nie, to zapyta o pozwolenie
         else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CONTACTS}, CONTACTS_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CONTACTS, Manifest.permission.READ_CONTACTS}, CONTACTS_REQUEST_CODE);
         }
     }
 
@@ -39,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case CONTACTS_REQUEST_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     inflateLayout();
                 }
                 else {
@@ -69,5 +72,8 @@ public class MainActivity extends AppCompatActivity {
         Cursor contactsCursor = getContactsCursor();
         // ustawia kursor w odpowiednim miejscu
         startManagingCursor(contactsCursor);
+        ListView listView = (ListView) findViewById(R.id.listView);
+        listView.setAdapter(new ContactsListAdapter(this, R.layout.row, contactsCursor, new String[0], new int[0], 0));
+
     }
 }
